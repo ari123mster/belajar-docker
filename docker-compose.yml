@@ -1,0 +1,47 @@
+version: '3.8'
+
+networks:
+  laravel:
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: mikrotik-app
+    restart: always
+    working_dir: /var/www/
+    volumes:
+      - ../src:/var/www
+    networks:
+      - laravel
+  nginx:
+    image: nginx:1.19-alpine
+    container_name: mikrotik-nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ../src:/var/www
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - laravel
+  mysql:
+    image: mysql:5.7.22
+    container_name: mikrotik-mysql
+    # restart: unless-stopped
+    # tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    networks:
+      - laravel
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    
